@@ -4,6 +4,9 @@ export default function AthleteMarket({ onBuy }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [sortBy, setSortBy] = useState("price-desc");
+  const [filterBy, setFilterBy] = useState("ALL");
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   useEffect(() => {
     async function fetchPlayers() {
@@ -26,12 +29,66 @@ export default function AthleteMarket({ onBuy }) {
     fetchPlayers();
   }, []);
 
+  const getSortedAndFilteredPlayers = () => {
+    let filtered = [...players];
+    if (filterBy !== "ALL") {
+      filtered = filtered.filter(p => p.position === filterBy);
+    }
+
+    switch (sortBy) {
+      case "name-asc":
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "price-asc":
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  };
+
+  const sortedPlayers = getSortedAndFilteredPlayers();
+
   if (loading) return <div className="text-gray-600">Loading players...</div>;
   if (errorMessage) return <div className="text-red-600">{errorMessage}</div>;
 
   return (
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-2">🏈 Player Market</h2>
+
+      <div className="flex gap-4 mb-4">
+        <div>
+          <label className="mr-2 font-medium">Sort by:</label>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="border rounded px-2 py-1"
+          >
+            <option value="price-desc">Price (High → Low)</option>
+            <option value="price-asc">Price (Low → High)</option>
+            <option value="name-asc">Name (A → Z)</option>
+          </select>
+        </div>
+        <div>
+          <label className="mr-2 font-medium">Filter by position:</label>
+          <select
+            value={filterBy}
+            onChange={(e) => setFilterBy(e.target.value)}
+            className="border rounded px-2 py-1"
+          >
+            <option value="ALL">All</option>
+            <option value="QB">QB</option>
+            <option value="RB">RB</option>
+            <option value="WR">WR</option>
+          </select>
+        </div>
+      </div>
+
       <table className="w-full bg-white rounded shadow">
         <thead>
           <tr className="bg-gray-200 text-left">
@@ -43,15 +100,22 @@ export default function AthleteMarket({ onBuy }) {
           </tr>
         </thead>
         <tbody>
-          {players.map((player) => (
-            <tr key={player.id} className="border-t">
+          {sortedPlayers.map((player) => (
+            <tr
+              key={player.id}
+              className="border-t cursor-pointer hover:bg-gray-100"
+              onClick={() => setSelectedPlayer(player)}
+            >
               <td className="p-2">{player.name}</td>
               <td className="p-2">{player.team}</td>
               <td className="p-2">{player.position}</td>
               <td className="p-2">${player.price.toFixed(2)}</td>
               <td className="p-2">
                 <button
-                  onClick={() => onBuy(player)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBuy(player);
+                  }}
                   className="bg-blue-500 text-white px-3 py-1 rounded"
                 >
                   Buy
@@ -61,6 +125,24 @@ export default function AthleteMarket({ onBuy }) {
           ))}
         </tbody>
       </table>
+
+      {selectedPlayer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+            <h3 className="text-xl font-bold mb-2">{selectedPlayer.name}</h3>
+            <p className="text-gray-700 mb-1">Team: {selectedPlayer.team}</p>
+            <p className="text-gray-700 mb-1">Position: {selectedPlayer.position}</p>
+            <p className="text-gray-700 mb-3">Current Price: ${selectedPlayer.price.toFixed(2)}</p>
+            <p className="text-sm text-gray-500 mb-4">* More stats and bio info can go here in future updates.</p>
+            <button
+              className="absolute top-2 right-3 text-gray-600 hover:text-black text-xl"
+              onClick={() => setSelectedPlayer(null)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
