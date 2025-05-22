@@ -8,7 +8,9 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      return res.status(500).json({ error: "Failed to fetch players." });
+      const errorText = await response.text();
+      console.error("Sportsdata.io API failed:", response.status, errorText);
+      return res.status(response.status).json({ error: "API failed", message: errorText });
     }
 
     const data = await response.json();
@@ -24,8 +26,8 @@ export default async function handler(req, res) {
       }));
 
     res.status(200).json(topPlayers);
-  } catch (err) {
-    console.error("Serverless error:", err);
-    res.status(500).json({ error: "Internal server error." });
+  } catch (error) {
+    console.error("Function crashed:", error.message);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 }
