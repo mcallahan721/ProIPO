@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   const API_KEY = "bc1b64fd59ee4cf28648a25dd6abdd49";
-  const API_URL = "https://api.sportsdata.io/v3/nfl/stats/json/PlayerSeasonStats/2023REG";
+  const API_URL = "https://api.sportsdata.io/v3/nfl/stats/json/PlayerSeasonStats/2021REG";
 
   try {
     const response = await fetch(API_URL, {
