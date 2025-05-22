@@ -6,6 +6,7 @@ const PORTFOLIO_KEY = "statstakes_portfolio";
 
 export default function Home() {
   const [portfolio, setPortfolio] = useState([]);
+  const [allPlayers, setAllPlayers] = useState([]);
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -18,6 +19,33 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(portfolio));
   }, [portfolio]);
+
+  // Simulate price fluctuation every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPortfolio((prevPortfolio) =>
+        prevPortfolio.map((player) => ({
+          ...player,
+          price: fluctuatePrice(player.price),
+        }))
+      );
+      setAllPlayers((prevPlayers) =>
+        prevPlayers.map((player) => ({
+          ...player,
+          price: fluctuatePrice(player.price),
+        }))
+      );
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const fluctuatePrice = (price) => {
+    const changePercent = Math.random() * 0.05; // up to 5%
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    const newPrice = price + price * changePercent * direction;
+    return Math.max(1, parseFloat(newPrice.toFixed(2)));
+  };
 
   const handleBuy = (athlete) => {
     setPortfolio((prev) => {
@@ -66,7 +94,7 @@ export default function Home() {
           Portfolio has been reset.
         </div>
       )}
-      <AthleteMarket onBuy={handleBuy} />
+      <AthleteMarket onBuy={handleBuy} externalPlayers={allPlayers} setExternalPlayers={setAllPlayers} />
       <Portfolio portfolio={portfolio} onSell={handleSell} />
     </div>
   );
