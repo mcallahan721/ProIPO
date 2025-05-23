@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AthleteMarket from "../AthleteMarket.jsx";
 import Portfolio from "../Portfolio.jsx";
+import Leaderboard from "../Leaderboard.jsx";
 
 const PORTFOLIO_KEY = "statstakes_portfolio";
 
@@ -112,6 +113,7 @@ export default function Home() {
 
       <AthleteMarket onBuy={handleBuy} externalPlayers={allPlayers} setExternalPlayers={setAllPlayers} />
       <Portfolio portfolio={portfolio} onSell={handleSell} />
+      <Leaderboard />
     </div>
   );
 }
