@@ -136,7 +136,30 @@ export default function AthleteMarket({ onBuy, externalPlayers, setExternalPlaye
             <p className="text-gray-700 mb-1">Team: {selectedPlayer.team}</p>
             <p className="text-gray-700 mb-1">Position: {selectedPlayer.position}</p>
             <p className="text-gray-700 mb-3">Current Price: ${selectedPlayer.price.toFixed(2)}</p>
-            <p className="text-sm text-gray-500 mb-4">* More stats and bio info can go here in future updates.</p>
+
+            <p className="text-gray-700 font-medium mt-4 mb-2">📊 Key Stats:</p>
+            {selectedPlayer.position === "QB" && (
+              <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
+                <li>Passing Yards: {selectedPlayer.stats?.passingYards}</li>
+                <li>Touchdowns: {selectedPlayer.stats?.touchdowns}</li>
+                <li>Interceptions: {selectedPlayer.stats?.interceptions}</li>
+              </ul>
+            )}
+            {selectedPlayer.position === "RB" && (
+              <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
+                <li>Rushing Yards: {selectedPlayer.stats?.rushingYards}</li>
+                <li>Touchdowns: {selectedPlayer.stats?.touchdowns}</li>
+                <li>Receptions: {selectedPlayer.stats?.receptions}</li>
+              </ul>
+            )}
+            {selectedPlayer.position === "WR" && (
+              <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
+                <li>Receiving Yards: {selectedPlayer.stats?.receivingYards}</li>
+                <li>Touchdowns: {selectedPlayer.stats?.touchdowns}</li>
+                <li>Receptions: {selectedPlayer.stats?.receptions}</li>
+              </ul>
+            )}
+
             <button
               className="absolute top-2 right-3 text-gray-600 hover:text-black text-xl"
               onClick={() => setSelectedPlayer(null)}
