@@ -17,14 +17,14 @@ export default function AthleteMarket({ onBuy, externalPlayers, setExternalPlaye
 
   async function fetchPlayers() {
     try {
-      const res = await fetch("/api/players");
+      const res = await fetch("/api/espn");
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error("Unexpected API response");
       setExternalPlayers(data);
       setErrorMessage("");
     } catch (error) {
-      console.error("Error fetching athlete data:", error);
-      setErrorMessage("Failed to load player data.");
+      console.error("Error fetching ESPN athlete data:", error);
+      setErrorMessage("Failed to load ESPN player data.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function AthleteMarket({ onBuy, externalPlayers, setExternalPlaye
 
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-2">🏈 Player Market</h2>
+      <h2 className="text-xl font-semibold mb-2">🏈 Player Market (Live ESPN Data)</h2>
 
       <div className="flex flex-wrap gap-4 mb-4">
         <div>
@@ -137,28 +137,13 @@ export default function AthleteMarket({ onBuy, externalPlayers, setExternalPlaye
             <p className="text-gray-700 mb-1">Position: {selectedPlayer.position}</p>
             <p className="text-gray-700 mb-3">Current Price: ${selectedPlayer.price.toFixed(2)}</p>
 
-            <p className="text-gray-700 font-medium mt-4 mb-2">📊 Key Stats:</p>
-            {selectedPlayer.position === "QB" && (
-              <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
-                <li>Passing Yards: {selectedPlayer.stats?.passingYards}</li>
-                <li>Touchdowns: {selectedPlayer.stats?.touchdowns}</li>
-                <li>Interceptions: {selectedPlayer.stats?.interceptions}</li>
-              </ul>
-            )}
-            {selectedPlayer.position === "RB" && (
-              <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
-                <li>Rushing Yards: {selectedPlayer.stats?.rushingYards}</li>
-                <li>Touchdowns: {selectedPlayer.stats?.touchdowns}</li>
-                <li>Receptions: {selectedPlayer.stats?.receptions}</li>
-              </ul>
-            )}
-            {selectedPlayer.position === "WR" && (
-              <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
-                <li>Receiving Yards: {selectedPlayer.stats?.receivingYards}</li>
-                <li>Touchdowns: {selectedPlayer.stats?.touchdowns}</li>
-                <li>Receptions: {selectedPlayer.stats?.receptions}</li>
-              </ul>
-            )}
+            <p className="text-gray-700 font-medium mt-4 mb-2">📊 Player Info:</p>
+            <ul className="text-gray-600 text-sm list-disc list-inside mb-3">
+              <li>Jersey: {selectedPlayer.stats?.jersey}</li>
+              <li>Height: {selectedPlayer.stats?.height}</li>
+              <li>Weight: {selectedPlayer.stats?.weight}</li>
+              <li>Age: {selectedPlayer.stats?.age}</li>
+            </ul>
 
             <button
               className="absolute top-2 right-3 text-gray-600 hover:text-black text-xl"
