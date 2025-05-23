@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-export default function AthleteMarket({ onBuy }) {
-  const [players, setPlayers] = useState([]);
+export default function AthleteMarket({ onBuy, externalPlayers, setExternalPlayers }) {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [sortBy, setSortBy] = useState("price-desc");
@@ -9,28 +8,30 @@ export default function AthleteMarket({ onBuy }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   useEffect(() => {
-    async function fetchPlayers() {
-      try {
-        const res = await fetch("/api/players");
-        const data = await res.json();
-
-        if (!Array.isArray(data)) throw new Error("Unexpected API response");
-
-        setPlayers(data);
-        setErrorMessage("");
-      } catch (error) {
-        console.error("Error fetching athlete data:", error);
-        setErrorMessage("Failed to load player data.");
-      } finally {
-        setLoading(false);
-      }
+    if (!externalPlayers || externalPlayers.length === 0) {
+      fetchPlayers();
+    } else {
+      setLoading(false);
     }
-
-    fetchPlayers();
   }, []);
 
+  async function fetchPlayers() {
+    try {
+      const res = await fetch("/api/players");
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("Unexpected API response");
+      setExternalPlayers(data);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error fetching athlete data:", error);
+      setErrorMessage("Failed to load player data.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const getSortedAndFilteredPlayers = () => {
-    let filtered = [...players];
+    let filtered = [...externalPlayers];
     if (filterBy !== "ALL") {
       filtered = filtered.filter(p => p.position === filterBy);
     }
@@ -61,7 +62,7 @@ export default function AthleteMarket({ onBuy }) {
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-2">🏈 Player Market</h2>
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-wrap gap-4 mb-4">
         <div>
           <label className="mr-2 font-medium">Sort by:</label>
           <select
@@ -89,42 +90,44 @@ export default function AthleteMarket({ onBuy }) {
         </div>
       </div>
 
-      <table className="w-full bg-white rounded shadow">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="p-2">Name</th>
-            <th className="p-2">Team</th>
-            <th className="p-2">Pos</th>
-            <th className="p-2">Price</th>
-            <th className="p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedPlayers.map((player) => (
-            <tr
-              key={player.id}
-              className="border-t cursor-pointer hover:bg-gray-100"
-              onClick={() => setSelectedPlayer(player)}
-            >
-              <td className="p-2">{player.name}</td>
-              <td className="p-2">{player.team}</td>
-              <td className="p-2">{player.position}</td>
-              <td className="p-2">${player.price.toFixed(2)}</td>
-              <td className="p-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onBuy(player);
-                  }}
-                  className="bg-blue-500 text-white px-3 py-1 rounded"
-                >
-                  Buy
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white rounded shadow text-sm sm:text-base">
+          <thead>
+            <tr className="bg-gray-200 text-left">
+              <th className="p-2">Name</th>
+              <th className="p-2">Team</th>
+              <th className="p-2">Pos</th>
+              <th className="p-2">Price</th>
+              <th className="p-2">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {sortedPlayers.map((player) => (
+              <tr
+                key={player.id}
+                className="border-t hover:bg-gray-50"
+                onClick={() => setSelectedPlayer(player)}
+              >
+                <td className="p-2">{player.name}</td>
+                <td className="p-2">{player.team}</td>
+                <td className="p-2">{player.position}</td>
+                <td className="p-2">${player.price.toFixed(2)}</td>
+                <td className="p-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBuy(player);
+                    }}
+                    className="bg-blue-500 text-white px-3 py-1 rounded text-xs sm:text-sm"
+                  >
+                    Buy
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {selectedPlayer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
